@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "demo": {
+      "command": "python.exe",
+      "args": ["../examples/downstream-mcp/demo_server.py"],
+      "namespace": "demo"
+    }
+  }
+}

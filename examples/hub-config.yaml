@@ -1,0 +1,8 @@
+servers:
+  - id: local-demo
+    transport: stdio
+    command: python.exe
+    args: ["../examples/downstream-mcp/demo_server.py"]
+    namespace: demo
+    enabled: true
+    timeout_ms: 30000

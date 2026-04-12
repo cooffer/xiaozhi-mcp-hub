@@ -1,0 +1,2 @@
+"""Xiaozhi MCP Hub backend."""
+
