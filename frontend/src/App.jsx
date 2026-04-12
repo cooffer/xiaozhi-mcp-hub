@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { LOCALES, createTranslator, detectLocale } from "./i18n_runtime.js";
+import markImage from "../../logo.png";
 
 const API_BASE = "/api/v1";
-const MARK_IMAGE =
-  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAkElEQVR4nO3XwQnAIBAEwXf/pZ3sSVVQBEE+DcI+7O7AAk/GW5l3/36B+gBAEADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAABgV5n3jnM+4z3s9h6m0wpdV5X5W+Mcw5xzlFJg2zYopRSiKAr7/v8nQRAQx3FUVRVFUdQ0TbZtG8cxhmHAMAyLkqIoCk3TtG3btt0TAAAQAMAABwD8AAsgC3fOMk+XAAAAAElFTkSuQmCC";
+const MARK_IMAGE = markImage;
 
 const ICONS = {
   overview: "M4 13.5 12 5l8 8.5M6 12.5V20h12v-7.5M9 20v-6h6v6",
