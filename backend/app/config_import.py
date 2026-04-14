@@ -1,3 +1,10 @@
+"""配置导入兼容层。
+
+支持项目原生 `servers:` 格式，也兼容常见 MCP 客户端使用的 `mcpServers`
+对象格式。导入完成后会尝试自动发现启用服务的工具；单个服务失败不会中断
+整个导入，而是写入 errors 返回给 WebUI。
+"""
+
 from __future__ import annotations
 
 import json
@@ -86,6 +93,12 @@ def _mcp_servers(payload: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 async def import_config(payload: dict[str, Any], store: InMemoryStore, connectors: ConnectorManager, created_by: str | None = None) -> dict[str, Any]:
+    """导入配置并尽力发现工具。
+
+    这里故意不让某个 server 的发现失败回滚其他 server，因为批量导入时常见
+    情况是本地 stdio、远程 HTTP 混合，其中部分服务暂时不可用也应该保留配置。
+    """
+
     payload = expand_env(payload)
     upstream_count = 0
     server_count = 0

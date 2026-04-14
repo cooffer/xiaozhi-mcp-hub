@@ -1,3 +1,10 @@
+"""下游 MCP 连接器管理。
+
+ConnectorManager 维护 server 配置和运行中 connector 的映射，负责工具发现、
+健康检查和调用失败后的降级/熔断状态。具体传输协议细节留给 stdio/http/sse
+connector，自身只关心统一接口。
+"""
+
 from __future__ import annotations
 
 import time
@@ -40,6 +47,8 @@ class ConnectorManager:
                 self._connectors[server.id] = self._build_connector(server)
 
     async def discover_server(self, server: DownstreamServer) -> list[dict[str, Any]]:
+        """发现某个下游服务的工具并刷新注册中心。"""
+
         connector = self._connectors.get(server.id)
         if connector is None:
             connector = self._build_connector(server)
@@ -94,6 +103,12 @@ class ConnectorManager:
         return results
 
     async def call_tool(self, server: DownstreamServer, origin_tool_name: str, arguments: dict[str, Any]) -> ConnectorResponse:
+        """调用原始下游工具名。
+
+        上游看到的是统一 tool_id，下游 connector 只接收 origin_tool_name。
+        这里是防止“统一命名规则”泄漏到下游协议层的边界。
+        """
+
         connector = self._connectors.get(server.id)
         if connector is None:
             connector = self._build_connector(server)

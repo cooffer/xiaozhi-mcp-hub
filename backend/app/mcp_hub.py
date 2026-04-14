@@ -1,3 +1,10 @@
+"""MCP JSON-RPC 聚合入口。
+
+McpHub 只处理标准 MCP JSON-RPC 语义：生命周期、工具枚举、工具调用、
+batch/notification 形态，以及把下游连接器结果转换回 MCP CallToolResult。
+HTTP/WebSocket 的封装差异由 API router 或小智 bridge 处理，避免污染核心协议层。
+"""
+
 from __future__ import annotations
 
 import json
@@ -38,6 +45,8 @@ HUB_STATUS_TOOL = {
 
 
 class JsonRpcError(Exception):
+    """内部异常，统一映射为 JSON-RPC error object。"""
+
     def __init__(self, code: int, message: str, data: Any | None = None) -> None:
         self.code = code
         self.message = message
@@ -46,6 +55,13 @@ class JsonRpcError(Exception):
 
 
 class McpHub:
+    """面向上游小智的统一 MCP Server。
+
+    关键调用顺序是：限流 -> 内置工具判断 -> 工具存在性 -> ACL -> 审批 ->
+    路由 -> 下游调用 -> 审计。这个顺序保证高危工具不会绕过审批，也保证拒绝、
+    待审批和下游错误都能留下 trace/audit。
+    """
+
     def __init__(
         self,
         store: InMemoryStore,
@@ -113,6 +129,12 @@ class McpHub:
         raise JsonRpcError(-32601, f"Method not found: {method}")
 
     async def list_tools(self, params: dict[str, Any], context: ToolCallContext) -> dict[str, Any]:
+        """返回上游可见工具。
+
+        `hub.status` 总是排在最前面，让小智后台即使还没有下游工具，也能看到
+        一个默认工具来确认 MCP 接入已经连通。
+        """
+
         cursor = str(params.get("cursor") or "")
         page_size = int(params.get("limit") or 50)
         all_tools = await self.store.list_tools(tenant_id=context.tenant_id, enabled=True)
@@ -149,6 +171,7 @@ class McpHub:
             await self.audit.record(context, "tools/call", status="denied", tool_id=name)
             raise JsonRpcError(-32003, "permission denied")
         try:
+            # 审批必须发生在路由和真实下游调用之前，避免 high/critical 工具被自动执行。
             await self.approvals.assert_approved_or_raise(tool, arguments, context)
             servers = await self.store.list_servers()
             server = self.router.route(tool, servers, RoutePolicy())

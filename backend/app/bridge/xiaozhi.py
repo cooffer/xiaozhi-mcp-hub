@@ -1,3 +1,10 @@
+"""小智官方 WebSocket bridge。
+
+小智官方接入点由 Hub 主动以 WebSocket client 连接。bridge 只负责小智协议
+外壳和标准 MCP JSON-RPC payload 之间的转换，真正的工具列表、调用、审批和
+审计都交给 McpHub。这样后续适配小智自定义 envelope 时不会污染核心 MCP 层。
+"""
+
 from __future__ import annotations
 
 import asyncio

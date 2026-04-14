@@ -1,3 +1,13 @@
+"""工具注册中心规则。
+
+注册中心把下游 MCP server 的原始 tool 转换为 Hub 对上游暴露的统一工具目录：
+
+- 默认 tool_id 为 `{namespace}.{origin_tool_name}`。
+- 同名冲突时追加 `__{server_id}`。
+- 统一兼容 `inputSchema`、`input_schema` 和缺失 annotations 的旧结构。
+- 风险等级优先读取 annotations，缺失时按工具名和描述做保守推断。
+"""
+
 from __future__ import annotations
 
 import re
@@ -125,4 +135,3 @@ def to_mcp_tool(tool: ToolRecord) -> dict[str, Any]:
             "tags": tool.tags,
         },
     }
-

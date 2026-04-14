@@ -1,3 +1,11 @@
+"""stdio 下游 MCP connector。
+
+stdio MCP Server 通过 stdin/stdout 传输 JSON-RPC，每条消息一行。协议要求
+stdout 只能写 JSON-RPC，日志必须走 stderr。连接器在首次使用时启动子进程，
+执行 `initialize -> notifications/initialized`，之后复用同一进程执行
+`tools/list` 和 `tools/call`。
+"""
+
 from __future__ import annotations
 
 import asyncio
@@ -20,6 +28,8 @@ class StdioConnector:
         self._initialized = False
 
     async def initialize(self) -> None:
+        """启动进程并完成 MCP 初始化握手。"""
+
         if self._is_running() and self._initialized:
             return
         if not self.server.command:
@@ -46,9 +56,9 @@ class StdioConnector:
                 env=env,
             )
         except (NotImplementedError, PermissionError):
-            # Some Windows ASGI event loops do not implement subprocess transports.
-            # Some Windows sandboxes also deny asyncio's overlapped pipe handles.
-            # Fall back to a blocking Popen process and move pipe IO to worker threads.
+            # Windows 上部分 ASGI 事件循环不支持 asyncio subprocess transport。
+            # 某些本地沙箱还会拒绝 overlapped pipe 句柄，所以降级到 Popen。
+            # 管道读写放到 worker thread，避免阻塞 FastAPI 主事件循环。
             self._process = subprocess.Popen(
                 [self.server.command, *self.server.args],
                 stdin=subprocess.PIPE,

@@ -1,3 +1,10 @@
+"""Streamable HTTP 下游 MCP connector。
+
+当前实现聚焦工具型 MCP Server：通过 JSON-RPC POST 完成 initialize、initialized
+通知、tools/list 和 tools/call。若服务返回 `Mcp-Session-Id`，后续请求会带上
+该 session header。
+"""
+
 from __future__ import annotations
 
 import time

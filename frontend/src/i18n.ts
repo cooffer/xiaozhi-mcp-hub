@@ -1,4 +1,7 @@
-export const LOCALES = ["zh-CN", "en-US"];
+export const LOCALES = ["zh-CN", "en-US"] as const;
+
+export type Locale = (typeof LOCALES)[number];
+export type Translator = (path: string) => string;
 
 const dictionaries = {
   "zh-CN": {
@@ -387,17 +390,18 @@ const dictionaries = {
       route_not_found: "No route"
     }
   }
-};
+} as const;
 
-export function detectLocale() {
+export function detectLocale(): Locale {
   const saved = localStorage.getItem("locale");
-  if (LOCALES.includes(saved)) return saved;
+  if (saved && (LOCALES as readonly string[]).includes(saved)) return saved as Locale;
   return navigator.language?.toLowerCase().startsWith("zh") ? "zh-CN" : "en-US";
 }
 
-export function createTranslator(locale) {
+export function createTranslator(locale: Locale): Translator {
   const dictionary = dictionaries[locale] || dictionaries["en-US"];
   return function t(path) {
-    return path.split(".").reduce((value, key) => value?.[key], dictionary) ?? path;
+    const value = path.split(".").reduce<unknown>((current, key) => (current as Record<string, unknown> | undefined)?.[key], dictionary);
+    return typeof value === "string" ? value : path;
   };
 }

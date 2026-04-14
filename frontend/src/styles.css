@@ -554,8 +554,53 @@ button.tab.active {
   grid-template-columns: minmax(140px, 0.9fr) minmax(240px, 1.7fr) minmax(110px, 0.7fr) auto;
 }
 
-.approval-table .table-head,
-.approval-table .table-row {
+.tools-table .table-head,
+.tools-table .table-row {
+  grid-template-columns: minmax(280px, 2fr) minmax(150px, 0.9fr) minmax(80px, 0.45fr) minmax(92px, 0.5fr) minmax(110px, auto);
+}
+
+.tools-table .table-row {
+  align-items: flex-start;
+  padding: 14px;
+}
+
+.tools-table .button-content {
+  width: 100%;
+}
+
+.tool-cell,
+.server-cell {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.tool-name {
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.tool-description {
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.server-cell strong {
+  line-height: 1.3;
+}
+
+.tools-table code {
+  width: fit-content;
+  max-width: 100%;
+  border-radius: 8px;
+  background: hsl(207, 32%, 95%);
+  color: var(--info);
+  padding: 3px 7px;
+  line-height: 1.45;
+}
+
+.approvals-table .table-head,
+.approvals-table .table-row {
   grid-template-columns: minmax(180px, 1.6fr) minmax(120px, 0.8fr) minmax(150px, 1fr) minmax(160px, auto);
 }
 
@@ -910,8 +955,10 @@ code {
   .upstream-table .table-row,
   .server-table .table-head,
   .server-table .table-row,
-  .approval-table .table-head,
-  .approval-table .table-row,
+  .tools-table .table-head,
+  .tools-table .table-row,
+  .approvals-table .table-head,
+  .approvals-table .table-row,
   .audit-table .table-head,
   .audit-table .table-row {
     grid-template-columns: 1fr;
